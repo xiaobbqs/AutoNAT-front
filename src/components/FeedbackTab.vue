@@ -1,6 +1,7 @@
 <template>
 <div id="feedbackTab">
-  <el-button size="large" @click="this.start">start</el-button>
+  <el-button size="large" @click="this.start">test</el-button>
+  <el-button size="large" @click="this.natConfig">config</el-button>
   <el-button size="large" @click="this.addTab">addTab</el-button>
   <el-tabs v-model="activeName" type="card">
 <!--    <el-tab-pane label="tab1" name="first" :key="'first'">
@@ -37,11 +38,11 @@ export default {
   props: {
     createWspath: {
       type: String,
-      default: "ws://localhost:8088/websocket/",
+      default: "ws://localhost:8887",
     },
     serviceHost: {
       type: String,
-      default: "http://localhost:8088",
+      default: "http://localhost:8887",
     },
   },
 
@@ -68,7 +69,6 @@ export default {
   methods: {
 
     createWs() {
-
       if (typeof WebSocket === "undefined") {
         return;
       }
@@ -88,9 +88,9 @@ export default {
     },
 
     start(){
-        for(let i=0;i<this.editableTabs.length;i++){
+      for(let i=0;i<this.editableTabs.length;i++){
          document.getElementById("text"+this.editableTabs[i].id).value=this.editableTabs[i].name+" start!!!"
-        }
+      }
       this.load = true;
       let data = {
         //具体接口未定
@@ -101,7 +101,7 @@ export default {
        // hero: "",
       };
       this.$http
-        .post(this.serviceHost + "/test", data)
+        .get(this.serviceHost + "/test", data)
         .then((res) => {
           console.log(res);
         });
@@ -112,12 +112,26 @@ export default {
       let newTabId = ++this.tabIndex + '';
       this.editableTabs.push({
         id: newTabId,
-        name: 'Router'+String.fromCharCode(this.tabIndex+65),
+        name: 'Router'+this.tabIndex,
         content: 'New Tab content'
       });
       this.isTip = false;
       this.activeName = newTabId;
       console.log(newTabId);
+    },
+
+    natConfig(){
+      this.load = true;
+      let data = {
+        //具体接口未定
+        //topic: this.topic,
+        // hero: "",
+      };
+      this.$http
+        .get(this.serviceHost + "/config", data)
+        .then((res) => {
+          console.log(res);
+        });
     },
 
     stringTonum(a) {
@@ -135,26 +149,49 @@ export default {
       return numout;
     },
 
+    addNotExistTab(routerName){
+      let newTabId = ++this.tabIndex + '';
+      this.editableTabs.push({
+        id: newTabId,
+        name: routerName,
+        content: 'New Tab content'
+      });
+      this.isTip = false;
+      this.activeName = newTabId;
+      console.log(newTabId);
+    },
+
     onmessage(msg) {
       var content=msg.data;
       //假设router格式为 RouterX_dddddddddddd
-      var router=content.split("_")[0];
+      var routerName=content.split("_")[0];
       var routerContent=content.split("_")[1];
       //判断是否存在 不存在就创建新的tab
-      let id=stringTonum(router);
-      if(id > this.editableTabs.length){
-        for(let i=0;i<(this.editableTabs.length-id);i++)
-          addTab();
+      var judge =0;
+      for(var i=0;i<this.editableTabs.length;i++){
+        if(routerName==this.editableTabs[i].name)
+        {
+          judge=1;
+          document.getElementById("text"+this.editableTabs[i].id).value
+            =document.getElementById("text"+this.editableTabs[i].id).value+" \\n " +routerContent;
+        }
+      }
+      if(judge==0){
+         addNotExistTab(routerName);
+        document.getElementById("text"+this.editableTabs[this.editableTabs.length-1].id).value
+          =document.getElementById("text"+this.editableTabs[this.editableTabs.length-1].id).value+" \\n " +routerContent;
       }
       //存在就直接增加内容
-      document.getElementById("text"+this.editableTabs[i].id).value
-        =document.getElementById("text"+this.editableTabs[i].id).value+" \\n " +routerContent;
+
 
     //  for(let i=0;i<this.editableTabs.length;i++){
     //    document.getElementById("text"+this.editableTabs[i].id).value=this.editableTabs[i].name+" start!!!"
     //  }
       console.log(content)
     },
+
+
+
     /*beforeLeaveTab() {
       if (!this.isTip) {
         this.isTip = true;
