@@ -34,6 +34,21 @@
 <script>
 export default {
   name: 'FeedbackTab',
+  props: {
+    createWspath: {
+      type: String,
+      default: "ws://localhost:8088/websocket/",
+    },
+    serviceHost: {
+      type: String,
+      default: "http://localhost:8088",
+    },
+  },
+
+  mounted() {
+    this.createWs();
+  },
+
 
   data(){
     return {
@@ -51,23 +66,95 @@ export default {
     }
   },
   methods: {
-    start(){
-      for(let i=0;i<this.editableTabs.length;i++){
-        document.getElementById("text"+this.editableTabs[i].id).value=this.editableTabs[i].name+" start!!!"
+
+    createWs() {
+
+      if (typeof WebSocket === "undefined") {
+        return;
       }
+      this.socket = new WebSocket(this.createWspath);
+      this.socket.onopen = function () {
+        this.record = new Map();
+        console.log("socket 创建成功");
+      };
+      this.socket.onerror = function (err) {
+        console.log(err);
+      };
+
+      this.socket.onmessage = this.onmessage;
+      this.socket.onclose = function () {
+        console.log("socket 退出");
+      };
+    },
+
+    start(){
+        for(let i=0;i<this.editableTabs.length;i++){
+         document.getElementById("text"+this.editableTabs[i].id).value=this.editableTabs[i].name+" start!!!"
+        }
+      this.load = true;
+      let data = {
+        //具体接口未定
+       //topic: this.topic,
+      //  groupId: this.groupId + "",
+      //  start: this.queryDates[0] ? this.queryDates[0] : '',
+      //  end: this.queryDates[1] ? this.queryDates[1] : '',
+       // hero: "",
+      };
+      this.$http
+        .post(this.serviceHost + "/test", data)
+        .then((res) => {
+          console.log(res);
+        });
+
     },
 
     addTab(){
       let newTabId = ++this.tabIndex + '';
       this.editableTabs.push({
         id: newTabId,
-        name: 'RT'+this.tabIndex,
+        name: 'Router'+String.fromCharCode(this.tabIndex+65),
         content: 'New Tab content'
       });
       this.isTip = false;
       this.activeName = newTabId;
+      console.log(newTabId);
     },
 
+    stringTonum(a) {
+      var str = a.toLowerCase().split("");
+      var al = str.length;
+      var getCharNumber = function (charx) {
+        return charx.charCodeAt() - 96;
+      };
+      var numout = 0;
+      var charnum = 0;
+      for (var i = 0; i < al; i++) {
+        charnum = getCharNumber(str[i]);
+        numout += charnum * Math.pow(26, al - i - 1);
+      };
+      return numout;
+    },
+
+    onmessage(msg) {
+      var content=msg.data;
+      //假设router格式为 RouterX_dddddddddddd
+      var router=content.split("_")[0];
+      var routerContent=content.split("_")[1];
+      //判断是否存在 不存在就创建新的tab
+      let id=stringTonum(router);
+      if(id > this.editableTabs.length){
+        for(let i=0;i<(this.editableTabs.length-id);i++)
+          addTab();
+      }
+      //存在就直接增加内容
+      document.getElementById("text"+this.editableTabs[i].id).value
+        =document.getElementById("text"+this.editableTabs[i].id).value+" \\n " +routerContent;
+
+    //  for(let i=0;i<this.editableTabs.length;i++){
+    //    document.getElementById("text"+this.editableTabs[i].id).value=this.editableTabs[i].name+" start!!!"
+    //  }
+      console.log(content)
+    },
     /*beforeLeaveTab() {
       if (!this.isTip) {
         this.isTip = true;
