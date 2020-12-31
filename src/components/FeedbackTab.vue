@@ -100,11 +100,12 @@ export default {
       //  end: this.queryDates[1] ? this.queryDates[1] : '',
        // hero: "",
       };
-      this.$http
-        .get(this.serviceHost + "/test", data)
-        .then((res) => {
-          console.log(res);
-        });
+      this.socket.send("test_NAT")
+//      this.$http
+//        .get(this.serviceHost + "/test", data)
+//        .then((res) => {
+//          console.log(res);
+//        });
 
     },
 
@@ -162,24 +163,40 @@ export default {
     },
 
     onmessage(msg) {
+    
       var content=msg.data;
+      console.log(content);
       //假设router格式为 RouterX_dddddddddddd
-      var routerName=content.split("_")[0];
-      var routerContent=content.split("_")[1];
+      let data = JSON.parse(content)
+      if (data.result) {
+        alert(data.result);
+        return;
+      }
+      
+      var routerName=data.device
+      console.log(routerName);
+      var routerContent=data.output
+      console.log(data["command"])
+      console.log(data.output)
+
       //判断是否存在 不存在就创建新的tab
       var judge =0;
       for(var i=0;i<this.editableTabs.length;i++){
         if(routerName==this.editableTabs[i].name)
         {
           judge=1;
+          if (document.getElementById("text" + this.editableTabs[i].id).value) {
           document.getElementById("text"+this.editableTabs[i].id).value
-            =document.getElementById("text"+this.editableTabs[i].id).value+" \\n " +routerContent;
+            =document.getElementById("text"+this.editableTabs[i].id).value+ " " +  routerContent;
+         console.log(document.getElementById("text"+this.editableTabs[i].id).value)
+	  } else {
+          document.getElementById("text"+this.editableTabs[i].id).value = routerName + "> " + routerContent;
+          }
         }
       }
       if(judge==0){
-         addNotExistTab(routerName);
-        document.getElementById("text"+this.editableTabs[this.editableTabs.length-1].id).value
-          =document.getElementById("text"+this.editableTabs[this.editableTabs.length-1].id).value+" \\n " +routerContent;
+         this.addNotExistTab(routerName);
+          document.getElementById("text"+this.editableTabs[this.editableTabs.length-1].id).value = routerName + "> " + routerContent;
       }
       //存在就直接增加内容
 
