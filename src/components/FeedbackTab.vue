@@ -2,7 +2,7 @@
 <div id="feedbackTab">
   <el-button size="large" @click="this.start">test</el-button>
   <el-button size="large" @click="this.natConfig">config</el-button>
-  <el-button size="large" @click="this.addTab">addTab</el-button>
+<!--  <el-button size="large" @click="this.addTab">addTab</el-button>-->
   <el-tabs v-model="activeName" type="card">
 <!--    <el-tab-pane label="tab1" name="first" :key="'first'">
 &lt;!&ndash;      <div style="background: yellow; display: inline">
@@ -163,7 +163,7 @@ export default {
     },
 
     onmessage(msg) {
-    
+
       var content=msg.data;
       console.log(content);
       //假设router格式为 RouterX_dddddddddddd
@@ -172,7 +172,7 @@ export default {
         alert(data.result);
         return;
       }
-      
+
       var routerName=data.device
       console.log(routerName);
       var routerContent=data.output

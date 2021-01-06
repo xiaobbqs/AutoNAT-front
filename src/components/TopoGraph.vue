@@ -1,6 +1,6 @@
 <template>
   <div id="topoGraph">
-    <img src="./logo.png" id="graph">
+    <img src="./topo.png" id="graph">
     <br>
     <a id="topoFont">拓扑图</a>
   </div>
