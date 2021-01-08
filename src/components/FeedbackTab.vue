@@ -25,7 +25,7 @@
       :label="item.name"
       :name="item.id">
       <!--{{item.content}}-->
-      <textarea :id="'text'+item.id" readonly="readonly" style="width:95%; height:450px;">
+      <textarea :id="'text'+item.id" readonly="readonly" style="width:95%; height:450px;" onpropertychange="this.scrollTop = this.scrollHeight">
       </textarea>
     </el-tab-pane>
   </el-tabs>
@@ -88,9 +88,6 @@ export default {
     },
 
     start(){
-      for(let i=0;i<this.editableTabs.length;i++){
-         document.getElementById("text"+this.editableTabs[i].id).value=this.editableTabs[i].name+" start!!!"
-      }
       this.load = true;
       let data = {
         //具体接口未定
@@ -123,16 +120,17 @@ export default {
 
     natConfig(){
       this.load = true;
-      let data = {
+      //let data = {
         //具体接口未定
         //topic: this.topic,
         // hero: "",
-      };
-      this.$http
-        .get(this.serviceHost + "/config", data)
-        .then((res) => {
-          console.log(res);
-        });
+      //};
+      this.socket.send("config_NAT")
+//      this.$http
+//        .get(this.serviceHost + "/config", data)
+//        .then((res) => {
+//          console.log(res);
+//        });
     },
 
     stringTonum(a) {
@@ -190,7 +188,7 @@ export default {
             =document.getElementById("text"+this.editableTabs[i].id).value+ " " +  routerContent;
          console.log(document.getElementById("text"+this.editableTabs[i].id).value)
 	  } else {
-          document.getElementById("text"+this.editableTabs[i].id).value = routerName + "> " + routerContent;
+          document.getElementById("text"+this.editableTabs[i].id).value = routerContent;
           }
         }
       }
