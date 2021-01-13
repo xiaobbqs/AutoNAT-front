@@ -1,35 +1,20 @@
 <template>
-<div id="feedbackTab">
-  <el-button size="large" @click="this.start">test</el-button>
-  <el-button size="large" @click="this.natConfig">config</el-button>
-<!--  <el-button size="large" @click="this.addTab">addTab</el-button>-->
-  <el-tabs v-model="activeName" type="card">
-<!--    <el-tab-pane label="tab1" name="first" :key="'first'">
-&lt;!&ndash;      <div style="background: yellow; display: inline">
-        tab1内容
-        tab1内容
-        tab1内容
-      </div>&ndash;&gt;
-      <textarea id="firstText" readonly="readonly">
+  <div id="feedbackTab">
+    <el-button size="large" @click="this.start">test</el-button>
+    <el-button size="large" @click="this.natConfig">config</el-button>
+    <el-tabs v-model="activeName" type="card">
+      <el-tab-pane
+        v-for="(item, index) in editableTabs"
+        :key="item.id"
+        :label="item.name"
+        :name="item.id">
+        <!--{{item.content}}-->
+        <textarea :id="'text'+item.id" readonly="readonly" style="width:95%; height:450px;"
+                  onpropertychange="this.scrollTop = this.scrollHeight">
       </textarea>
-    </el-tab-pane>
-
-    <el-tab-pane label="tab2" name="second" :key="'second'">
-      <textarea id="secondText" readonly="readonly">
-      </textarea>
-    </el-tab-pane>-->
-
-    <el-tab-pane
-      v-for="(item, index) in editableTabs"
-      :key="item.id"
-      :label="item.name"
-      :name="item.id">
-      <!--{{item.content}}-->
-      <textarea :id="'text'+item.id" readonly="readonly" style="width:95%; height:450px;" onpropertychange="this.scrollTop = this.scrollHeight">
-      </textarea>
-    </el-tab-pane>
-  </el-tabs>
-</div>
+      </el-tab-pane>
+    </el-tabs>
+  </div>
 </template>
 
 <script>
@@ -51,18 +36,12 @@ export default {
   },
 
 
-  data(){
+  data() {
     return {
       activeName: '1',
-      editableTabs: [/*{
-        id: '1',
-        content: 'Tab 1 content'
-      }, {
-        id: '2',
-        content: 'Tab 2 content'
-      }*/],
-      tabIndex : 0,
-      isTip : true,
+      editableTabs: [],
+      tabIndex: 0,
+      isTip: true,
       //默认第一个选项卡
     }
   },
@@ -87,30 +66,17 @@ export default {
       };
     },
 
-    start(){
+    start() {
       this.load = true;
-      let data = {
-        //具体接口未定
-       //topic: this.topic,
-      //  groupId: this.groupId + "",
-      //  start: this.queryDates[0] ? this.queryDates[0] : '',
-      //  end: this.queryDates[1] ? this.queryDates[1] : '',
-       // hero: "",
-      };
+      let data = {};
       this.socket.send("test_NAT")
-//      this.$http
-//        .get(this.serviceHost + "/test", data)
-//        .then((res) => {
-//          console.log(res);
-//        });
-
     },
 
-    addTab(){
+    addTab() {
       let newTabId = ++this.tabIndex + '';
       this.editableTabs.push({
         id: newTabId,
-        name: 'Router'+this.tabIndex,
+        name: 'Router' + this.tabIndex,
         content: 'New Tab content'
       });
       this.isTip = false;
@@ -118,19 +84,9 @@ export default {
       console.log(newTabId);
     },
 
-    natConfig(){
+    natConfig() {
       this.load = true;
-      //let data = {
-        //具体接口未定
-        //topic: this.topic,
-        // hero: "",
-      //};
       this.socket.send("config_NAT")
-//      this.$http
-//        .get(this.serviceHost + "/config", data)
-//        .then((res) => {
-//          console.log(res);
-//        });
     },
 
     stringTonum(a) {
@@ -144,11 +100,12 @@ export default {
       for (var i = 0; i < al; i++) {
         charnum = getCharNumber(str[i]);
         numout += charnum * Math.pow(26, al - i - 1);
-      };
+      }
+      ;
       return numout;
     },
 
-    addNotExistTab(routerName){
+    addNotExistTab(routerName) {
       let newTabId = ++this.tabIndex + '';
       this.editableTabs.push({
         id: newTabId,
@@ -162,7 +119,7 @@ export default {
 
     onmessage(msg) {
 
-      var content=msg.data;
+      var content = msg.data;
       console.log(content);
       //假设router格式为 RouterX_dddddddddddd
       let data = JSON.parse(content)
@@ -171,73 +128,41 @@ export default {
         return;
       }
 
-      var routerName=data.device
+      var routerName = data.device
       console.log(routerName);
-      var routerContent=data.output
+      var routerContent = data.output
       console.log(data["command"])
       console.log(data.output)
 
       //判断是否存在 不存在就创建新的tab
-      var judge =0;
-      for(var i=0;i<this.editableTabs.length;i++){
-        if(routerName==this.editableTabs[i].name)
-        {
-          judge=1;
+      var judge = 0;
+      for (var i = 0; i < this.editableTabs.length; i++) {
+        if (routerName == this.editableTabs[i].name) {
+          judge = 1;
           if (document.getElementById("text" + this.editableTabs[i].id).value) {
-          document.getElementById("text"+this.editableTabs[i].id).value
-            =document.getElementById("text"+this.editableTabs[i].id).value+ " " +  routerContent;
-         console.log(document.getElementById("text"+this.editableTabs[i].id).value)
-	  } else {
-          document.getElementById("text"+this.editableTabs[i].id).value = routerContent;
+            document.getElementById("text" + this.editableTabs[i].id).value
+              = document.getElementById("text" + this.editableTabs[i].id).value + " " + routerContent;
+            console.log(document.getElementById("text" + this.editableTabs[i].id).value)
+          } else {
+            document.getElementById("text" + this.editableTabs[i].id).value = routerContent;
           }
         }
       }
-      if(judge==0){
-         this.addNotExistTab(routerName);
-          document.getElementById("text"+this.editableTabs[this.editableTabs.length-1].id).value = routerName + "> " + routerContent;
+      if (judge == 0) {
+        this.addNotExistTab(routerName);
+        document.getElementById("text" + this.editableTabs[this.editableTabs.length - 1].id).value = routerName + "> " + routerContent;
       }
       //存在就直接增加内容
-
-
-    //  for(let i=0;i<this.editableTabs.length;i++){
-    //    document.getElementById("text"+this.editableTabs[i].id).value=this.editableTabs[i].name+" start!!!"
-    //  }
       console.log(content)
     },
-
-
-
-    /*beforeLeaveTab() {
-      if (!this.isTip) {
-        this.isTip = true;
-        return true;
-      }
-
-      return this.$confirm('此操作将切换tab页, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '切换成功！可以做一些其他的事情'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'success',
-          message: '取消成功！可以做一些其他的事情'
-        });
-        throw new Error("取消成功！");
-      });
-    }*/
   }
 }
 </script>
 
 <style scoped>
-#feedbackTab{
-  width: 80%;
-  height: 500px;
-  margin: 0 auto;
-}
+  #feedbackTab {
+    width: 80%;
+    height: 500px;
+    margin: 0 auto;
+  }
 </style>

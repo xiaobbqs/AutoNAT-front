@@ -13,12 +13,13 @@ export default {
 </script>
 
 <style scoped>
-#graph{
-  width: 80%;
-  height: 500px;
-  margin: 0 auto;
-}
-#topoFont{
-  font-size: 40px
-}
+  #graph {
+    width: 80%;
+    height: 500px;
+    margin: 0 auto;
+  }
+
+  #topoFont {
+    font-size: 40px
+  }
 </style>

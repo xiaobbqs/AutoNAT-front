@@ -14,6 +14,7 @@
 <script>
 import topo from './TopoGraph'
 import tab from './FeedbackTab'
+
 export default {
   name: 'DashBoard',
   components: {topo, tab}
@@ -21,8 +22,8 @@ export default {
 </script>
 
 <style scoped>
-#board{
-  margin-top: 150px;
-  margin-right: 0px;
-}
+  #board {
+    margin-top: 150px;
+    margin-right: 0px;
+  }
 </style>
